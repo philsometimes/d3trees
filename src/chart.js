@@ -3,11 +3,13 @@ import * as d3 from 'd3';
 const width = 640;
 
 
-const chart = (test) => {
+const chart = (test, setData) => {
   const hierarchy = d3.hierarchy(test)
-  console.log(hierarchy);
   const root = tree(hierarchy);
   console.log(root.descendants());
+  console.log(root.links())
+  console.log(d3.linkVertical())
+
 
   let x0 = Infinity;
   let x1 = -x0;
@@ -55,8 +57,7 @@ const chart = (test) => {
   node.append("circle")
       .attr("fill", dt => dt.data.data.color ? dt.data.data.color : dt.children? '#0F0' : '#00F')
       .attr("r", 20)
-      .attr("onclick", dt => dt.data.data.onClick)
-      .attr("onmouseover", dt => dt.data.data.onHover);
+      .attr("onclick", dt => dt.data.data.onClick);
 
   node.append("text")
       .attr("dx", "0.31em")
