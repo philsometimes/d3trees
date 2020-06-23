@@ -21,6 +21,7 @@ const Tree = ({data, setData}) => {
   return (
     <>
       <div ref={svgRef}></div>
+      <div style={{height: '10vh'}}></div>
       <ReactTree data={data} setData={setData} />
     </>
   )

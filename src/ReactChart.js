@@ -23,13 +23,13 @@ export default function ReactTree({ data, setData }) {
   useEffect(() => {
     const runD3 = async () => {
       const d3Tree = await getTree(data, width)
+      console.log(d3Tree)
       tree.current = d3Tree
       const d3Children = await d3Tree.descendants()
+      console.log(d3Children)
       children.current = d3Children
       const d3Links = await d3Tree.links()
       links.current = d3Links
-      console.log(d3Links)
-      console.log(links.current)
       //fix this so we use a max and not this weird infinity
       let x00 = Infinity
       let x1 = -x0
@@ -40,9 +40,9 @@ export default function ReactTree({ data, setData }) {
       x0.current = x00
       return "done"
     }
+    setReady(false)
     runD3().then(res => {setReady(true)})
   }, [data])
-
 
 
   return (
@@ -52,7 +52,7 @@ export default function ReactTree({ data, setData }) {
         <g
           fontFamily="sans-serif"
           fontSize="10"
-          transform={`translate(${tree.dy / 3},${tree.dx - x0.current})`}
+          transform={`translate(${tree.current.dy / 3},${tree.current.dx - x0.current})`}
           id="root"
           >
           <g
@@ -70,6 +70,38 @@ export default function ReactTree({ data, setData }) {
                   .y(d => yScale(d[1]));
                 const linkPath = linkGen()
                 return <path id={i} key={i} d={linkPath}></path>
+              })
+            }
+          </g>
+          <g
+            strokeLinejoin="round"
+            strokeWidth="3"
+            >
+            {
+              children.current.map((child, i) => {
+                return (
+                  <g
+                    id={i}
+                    key={i}
+                    transform={`translate(${xScale(child.x)},${yScale(child.y)})`}
+                    >
+                    <circle
+                      fill={child.data.color ? child.data.color : child.children? '#0F0' : '#00F'}
+                      r="20"
+                      onClick={() => alert(`clicked ${child.data.name}`)}
+                      onMouseEnter={() => alert('hovered')}
+                      >
+                    </circle>
+                    <text
+                      dx="0.31em"
+                      y={child.children ? 0 : 4}
+                      fill={child.children ? "white" : "black"}
+                      textAnchor={child.children ? "end" : "start"}
+                      >
+                      {child.data.name}
+                    </text>
+                  </g>
+                )
               })
             }
           </g>
