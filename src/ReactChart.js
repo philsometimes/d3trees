@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import * as d3 from 'd3'
+import useChildRefs from './useChildRefs'
 
 const getTree = (data, width) => {
   const root = d3.hierarchy(data)
@@ -13,6 +14,7 @@ export default function ReactTree({ data, setData }) {
   const [ready, setReady] = useState(false)
   const tree = useRef()
   const children = useRef()
+  const refs = useRef([])
   const links = useRef()
   const x0 = useRef()
   const width = 640
@@ -45,10 +47,29 @@ export default function ReactTree({ data, setData }) {
   }, [data])
 
 
+  const handleDrag = useCallback(
+    d3.drag().on('drag', function() {
+        d3.select(this)
+          .raise()
+          .attr("cx", d3.event.x)
+          .attr("cy", d3.event.y);
+    // TODO: set something data as d3.event.x/y to let react know the new positions
+      }), [])
+
+  useEffect(() => {
+    refs.current.forEach( ref =>
+      handleDrag(d3.select(ref))
+    )
+  }, [ready, handleDrag])
+
+
   return (
     <>
     { ready &&
-      <svg viewBox={[-width/2, 0, width, 400]}>
+      <svg
+        viewBox={[-width/2, 0, width, 400]}
+        draggable="true"
+        >
         <g
           fontFamily="sans-serif"
           fontSize="10"
@@ -89,7 +110,7 @@ export default function ReactTree({ data, setData }) {
                       fill={child.data.color ? child.data.color : child.children? '#0F0' : '#00F'}
                       r="20"
                       onClick={() => alert(`clicked ${child.data.name}`)}
-                      onMouseEnter={() => alert('hovered')}
+                      ref={el => {refs.current.push(el)}}
                       >
                     </circle>
                     <text
@@ -112,63 +133,3 @@ export default function ReactTree({ data, setData }) {
     </>
   )
 }
-
-
-//
-// const chart = (test, setData) => {
-//   const hierarchy = d3.hierarchy(test)
-//   console.log(hierarchy);
-//   const root = tree(hierarchy);
-//   console.log(root.descendants());
-//
-//
-//
-//   const svg = d3.create("svg")
-//       .attr("viewBox", [-width/2, 0, width, 400]);
-//
-//   const g = svg.append("g")
-//       .attr("font-family", "sans-serif")
-//       .attr("font-size", 10)
-//       .attr("transform", `translate(${root.dy / 3},${root.dx - x0})`)
-//       .attr("id", "root");
-//
-//
-//
-//   const link = g.append("g")
-//     .attr("fill", "none")
-//     .attr("stroke", "black")
-//     .attr("stroke-opacity", 0.4)
-//     .attr("stroke-width", 1.5)
-//   .selectAll("path")
-//     .data(root.links())
-//     .join("path")
-//       .attr("d", d3.linkVertical()
-//           .x(dt => xScale(dt.x))
-//           .y(dt => yScale(dt.y)));
-//
-//    d3.select(link.nodes()[3])
-//       .attr("stroke", "blue")
-//
-//
-//   const node = g.append("g")
-//       .attr("stroke-linejoin", "round")
-//       .attr("stroke-width", 3)
-//     .selectAll("g")
-//     .data(root.descendants())
-//     .join("g")
-//       .attr("transform", dt => `translate(${xScale(dt.x)},${yScale(dt.y)})`);
-//
-//   node.append("circle")
-//       .attr("fill", dt => dt.data.data.color ? dt.data.data.color : dt.children? '#0F0' : '#00F')
-//       .attr("r", 20)
-//       .attr("onclick", dt => dt.data.data.onClick);
-//
-//   node.append("text")
-//       .attr("dx", "0.31em")
-//       .attr("y", dt => dt.children ? 0 : 4)
-//       .attr("fill", dt => dt.children ? "white" : "black")
-//       .attr("text-anchor", dt => dt.children ? "end" : "start")
-//       .text(dt => dt.data[Object.keys(dt.data)[0]].name)
-//   console.log(svg.node());
-//   return svg.node();
-// }
