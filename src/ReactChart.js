@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import * as d3 from 'd3'
-import useChildRefs from './useChildRefs'
 
 const getTree = (data, width) => {
   const root = d3.hierarchy(data)
@@ -51,8 +50,9 @@ export default function ReactTree({ data, setData }) {
     d3.drag().on('drag', function() {
         d3.select(this)
           .raise()
-          .attr("cx", d3.event.x)
-          .attr("cy", d3.event.y);
+          .attr('transform', `translate(${d3.event.x},${d3.event.y})`);
+          // .attr("x", d3.event.x)
+          // .attr("y", d3.event.y);
     // TODO: set something data as d3.event.x/y to let react know the new positions
       }), [])
 
@@ -105,12 +105,12 @@ export default function ReactTree({ data, setData }) {
                     id={i}
                     key={i}
                     transform={`translate(${xScale(child.x)},${yScale(child.y)})`}
+                    ref={el => {refs.current.push(el)}}
                     >
                     <circle
                       fill={child.data.color ? child.data.color : child.children? '#0F0' : '#00F'}
                       r="20"
                       onClick={() => alert(`clicked ${child.data.name}`)}
-                      ref={el => {refs.current.push(el)}}
                       >
                     </circle>
                     <text
