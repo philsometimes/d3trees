@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import Tree from './Tree'
+import React, { useState } from 'react'
+import ReactTree from './ReactTree'
 import initdata from './initdata'
 
 export default function Interface() {
@@ -7,14 +7,10 @@ export default function Interface() {
   const handleClick = () => {
     setData({...data, children:[...data.children,{name: '4'}]})
   }
-  const handleHover = (action) => {
-    console.log('action: ' + action);
-    setData({...data, color: action})
-  }
 
   return (
     <div>
-      <Tree data={data} setData={handleHover}/>
+      <ReactTree data={data} setData={setData} />
       <button onClick={handleClick}>CLICK ME</button>
     </div>
   )

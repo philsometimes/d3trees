@@ -62,6 +62,38 @@ export default function ReactTree({ data, setData }) {
     )
   }, [ready, handleDrag])
 
+  function toggleChildren(d) {
+        if (d.children) {
+            d._children = d.children;
+            d.children = null;
+        } else if (d._children) {
+            d.children = d._children;
+            d._children = null;
+        }
+        return d;
+    }
+  const update = (children) => {
+    children
+            .transition()
+            .duration(duration)
+            .attr("transform", function(nodeElement) {
+                return "translate(" + nodeElement.y + "," + nodeElement.x + ")";
+            }
+
+  const collapseChildren = (node, nodeElement) => {
+    const children = findChildren(node)
+    update(children);
+  }
+
+  const findChildren = (node) => {
+    return children.current.map((child, i) => {
+      if (child.parent.data.name === node.name ) {
+        return [child, i]
+      }
+      return null
+    }).filter(item => item !== null)
+  }
+
 
   return (
     <>
@@ -106,6 +138,7 @@ export default function ReactTree({ data, setData }) {
                     key={i}
                     transform={`translate(${xScale(child.x)},${yScale(child.y)})`}
                     ref={el => {refs.current.push(el)}}
+                    onClick={() => collapseChildren(child, refs.current[i])}
                     >
                     <circle
                       fill={child.data.color ? child.data.color : child.children? '#0F0' : '#00F'}
