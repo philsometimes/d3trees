@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import * as d3 from 'd3'
-
-const getTree = (data, width) => {
-  const root = d3.hierarchy(data)
-  root.dx = 10
-  root.dy = width / (root.height + 1)
-  return d3.tree().nodeSize([root.dx, root.dy])(root)
-}
+import {
+  getTree,
+  d3Drag,
+  transitionChildNodes
+} from './d3Utils'
 
 
 export default function ReactTree({ data, setData }) {
@@ -15,6 +13,7 @@ export default function ReactTree({ data, setData }) {
   const children = useRef()
   const refs = useRef([])
   const links = useRef()
+  const linkRefs = useRef([])
   const x0 = useRef()
   const width = 640
   const yScale = n => n/1.5
@@ -30,6 +29,7 @@ export default function ReactTree({ data, setData }) {
       console.log(d3Children)
       children.current = d3Children
       const d3Links = await d3Tree.links()
+      console.log(d3Links)
       links.current = d3Links
       //fix this so we use a max and not this weird infinity
       let x00 = Infinity
@@ -42,19 +42,15 @@ export default function ReactTree({ data, setData }) {
       return "done"
     }
     setReady(false)
-    runD3().then(res => {setReady(true)})
+    runD3().then(res => {
+      refs.current = []
+      linkRefs.current = []
+      setReady(true)
+    })
   }, [data])
 
 
-  const handleDrag = useCallback(
-    d3.drag().on('drag', function() {
-        d3.select(this)
-          .raise()
-          .attr('transform', `translate(${d3.event.x},${d3.event.y})`);
-          // .attr("x", d3.event.x)
-          // .attr("y", d3.event.y);
-    // TODO: set something data as d3.event.x/y to let react know the new positions
-      }), [])
+  const handleDrag = useCallback(d3Drag, [])
 
   useEffect(() => {
     refs.current.forEach( ref =>
@@ -62,38 +58,34 @@ export default function ReactTree({ data, setData }) {
     )
   }, [ready, handleDrag])
 
-  function toggleChildren(d) {
-        if (d.children) {
-            d._children = d.children;
-            d.children = null;
-        } else if (d._children) {
-            d.children = d._children;
-            d._children = null;
+  const findChildRefs = (node) => {
+    return node.children.map( child => {
+      return children.current.map((dt, i) => {
+        if (child.data.name === dt.data.name) {
+          return i
         }
-        return d;
-    }
-  const update = (children) => {
-    children
-            .transition()
-            .duration(duration)
-            .attr("transform", function(nodeElement) {
-                return "translate(" + nodeElement.y + "," + nodeElement.x + ")";
-            }
-
-  const collapseChildren = (node, nodeElement) => {
-    const children = findChildren(node)
-    update(children);
+        return null
+      }).filter(i => i !== null)
+    }).flat()
   }
 
-  const findChildren = (node) => {
-    return children.current.map((child, i) => {
-      if (child.parent.data.name === node.name ) {
-        return [child, i]
+  const findLinkRefs = (node) => {
+    return links.current.map((link, i) => {
+      if (link.source.data.name === node.data.name) {
+        return i
       }
       return null
-    }).filter(item => item !== null)
+    }).filter(i => i !== null)
   }
 
+  const collapseChildren = (node) => {
+    if (!node.children) {
+      return
+    }
+    const childRefIndexes = findChildRefs(node)
+    const linkRefIndexes = findLinkRefs(node)
+    transitionChildNodes(childRefIndexes, refs.current, node.children, linkRefIndexes, links.current, linkRefs.current)
+  }
 
   return (
     <>
@@ -122,7 +114,13 @@ export default function ReactTree({ data, setData }) {
                   .x(d => xScale(d[0]))
                   .y(d => yScale(d[1]));
                 const linkPath = linkGen()
-                return <path id={i} key={i} d={linkPath}></path>
+                return <path
+                          id={i}
+                          key={i}
+                          d={linkPath}
+                          ref={el => linkRefs.current.push(el)}
+                          >
+                        </path>
               })
             }
           </g>
@@ -138,12 +136,12 @@ export default function ReactTree({ data, setData }) {
                     key={i}
                     transform={`translate(${xScale(child.x)},${yScale(child.y)})`}
                     ref={el => {refs.current.push(el)}}
-                    onClick={() => collapseChildren(child, refs.current[i])}
+                    onClick={() => collapseChildren(child)}
                     >
                     <circle
                       fill={child.data.color ? child.data.color : child.children? '#0F0' : '#00F'}
                       r="20"
-                      onClick={() => alert(`clicked ${child.data.name}`)}
+                      opacity="100"
                       >
                     </circle>
                     <text
@@ -151,6 +149,7 @@ export default function ReactTree({ data, setData }) {
                       y={child.children ? 0 : 4}
                       fill={child.children ? "white" : "black"}
                       textAnchor={child.children ? "end" : "start"}
+                      fillOpacity='100'
                       >
                       {child.data.name}
                     </text>
