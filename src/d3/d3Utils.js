@@ -22,7 +22,7 @@ export const d3Drag = () => {
   })
 }
 
-export const transitionChildNodes = (indexes, refs, children, linkIndexes, links, linkRefs) => {
+export const collapseChildNodes = (indexes, refs, children, linkIndexes, links, linkRefs) => {
   const childRefs = indexes.map(i => refs[i])
   childRefs.forEach( (ref, i) => {
     d3.select(ref)
@@ -37,34 +37,73 @@ export const transitionChildNodes = (indexes, refs, children, linkIndexes, links
         .duration(2000)
         .attr('fill-opacity', '0')
         .attr('fill', 'white');
-      // .transition()
-      //   .duration(2000)
-      //   .attr('fill', '#00F');
     nodeExit(ref, children[i])
   })
   const linkElements = linkIndexes.map(i => [linkRefs[i], links[i]])
   linkElements.forEach( el => linkExit(el))
 }
 
+export const expandChildNodes = (indexes, refs, children, linkIndexes, links, linkRefs) => {
+  const childRefs = indexes.map(i => refs[i])
+  childRefs.forEach( (ref, i) => {
+    d3.select(ref)
+      .select('circle')
+      .transition()
+        .duration(2000)
+        .attr('fill', '#00F')
+        .attr('opacity', '100');
+    d3.select(ref)
+      .select('text')
+      .transition()
+        .duration(2000)
+        .attr('fill-opacity', '100')
+        .attr('fill', 'black');
+    nodeEnter(ref, children[i])
+  })
+  const linkElements = linkIndexes.map(i => [linkRefs[i], links[i]])
+  linkElements.forEach( el => linkEnter(el))
+}
+
 const nodeExit = (node, data) => {
+  d3.select(node)
+    .lower()
+    .transition()
+      .duration(2000)
+        .attr("transform", `translate(${xScale(data.parent.x)}, ${yScale(data.parent.y)})`);
+}
+
+const nodeEnter = (node, data) => {
+  console.log(node)
   d3.select(node)
     .transition()
       .duration(2000)
-        .attr("transform", `translate(${xScale(data.parent.x)}, ${yScale(data.parent.y)})`)
-    .remove();
+        .attr("transform", `translate(${xScale(data.x)}, ${yScale(data.y)})`)
 }
 
 const linkExit = (link) => {
   d3.select(link[0])
+    .lower()
     .transition()
       .duration(2000)
-        .attr("d", function() {
-          const linkGen = d3.linkVertical()
-            .source(d => [link[1].source.x, link[1].source.y])
-            .target(d => [link[1].source.x, link[1].source.y])
-            .x(d => xScale(d[0]))
-            .y(d => yScale(d[1]));
-          return linkGen()
-            })
-        .remove();
+        .attr("d", linkGen(link[1], 'self'));
+}
+
+const linkEnter = (link) => {
+  d3.select(link[0])
+    .transition()
+      .duration(2000)
+        .attr("d", linkGen(link[1], 'parent'))
+}
+
+export const linkGen = (link, to) => {
+  console.log('here')
+  const target = {
+    x: to === 'parent' ? link.target.x : link.source.x,
+    y: to === 'parent' ? link.target.y : link.source.y
+  }
+  return d3.linkVertical()
+    .source(d => [link.source.x, link.source.y])
+    .target(d => [target.x, target.y])
+    .x(d => xScale(d[0]))
+    .y(d => yScale(d[1]));
 }

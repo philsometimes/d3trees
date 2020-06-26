@@ -3,8 +3,10 @@ import * as d3 from 'd3'
 import {
   getTree,
   d3Drag,
-  transitionChildNodes
-} from './d3Utils'
+  collapseChildNodes,
+  expandChildNodes,
+  linkGen
+} from '../d3/d3Utils'
 
 
 export default function ReactTree({ data, setData }) {
@@ -18,6 +20,7 @@ export default function ReactTree({ data, setData }) {
   const width = 640
   const yScale = n => n/1.5
   const xScale = d3.scaleLinear().domain([0, 1]).range([0, 20])
+  const toggle = useRef(true)
 
   // QUESTION: does this really all need to be async??
   useEffect(() => {
@@ -84,7 +87,13 @@ export default function ReactTree({ data, setData }) {
     }
     const childRefIndexes = findChildRefs(node)
     const linkRefIndexes = findLinkRefs(node)
-    transitionChildNodes(childRefIndexes, refs.current, node.children, linkRefIndexes, links.current, linkRefs.current)
+    if (toggle.current) {
+      collapseChildNodes(childRefIndexes, refs.current, node.children, linkRefIndexes, links.current, linkRefs.current)
+      toggle.current = false
+      return
+    }
+    expandChildNodes(childRefIndexes, refs.current, node.children, linkRefIndexes, links.current, linkRefs.current)
+    toggle.current = true
   }
 
   return (

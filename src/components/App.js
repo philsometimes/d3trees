@@ -1,5 +1,4 @@
-import React from 'react';
-import logo from './logo.svg';
+import React from 'react'
 import Interface from './Interface'
 
 function App() {
@@ -10,4 +9,4 @@ function App() {
   );
 }
 
-export default App;
+export default App

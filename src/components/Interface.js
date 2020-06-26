@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import ReactTree from './ReactTree'
-import initdata from './initdata'
+import initdata from '../initdata'
 
 export default function Interface() {
   const [data, setData] = useState(initdata)
