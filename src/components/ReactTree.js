@@ -78,7 +78,7 @@ export default function ReactTree({ data, setData }) {
     }).filter(i => i !== null)
   }
 
-  const collapseChildren = (node) => {
+  const collapseExpandChildren = (node) => {
     if (!node.children) {
       return
     }
@@ -136,7 +136,7 @@ export default function ReactTree({ data, setData }) {
                     key={i}
                     transform={`translate(${xScale(child.x)},${yScale(child.y)})`}
                     ref={el => {refs.current.push(el)}}
-                    onClick={() => collapseChildren(child)}
+                    onClick={() => collapseExpandChildren(child)}
                     >
                     <circle
                       fill={child.data.color ? child.data.color : child.children? '#0F0' : '#00F'}
