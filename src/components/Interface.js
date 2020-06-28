@@ -1,11 +1,23 @@
 import React, { useState } from 'react'
 import ReactTree from './ReactTree'
-import initdata from '../initdata'
+import { flat } from '../flatData'
 
 export default function Interface() {
-  const [data, setData] = useState(initdata)
+  const [data, setData] = useState(flat)
   const handleClick = () => {
-    setData({...data, children:[...data.children,{name: '4'}]})
+    const nextUid = Object.keys(data).length
+    setData(
+      {...data,
+        [nextUid]: {
+          uid: nextUid.toString(),
+          name: '4',
+          color: '',
+          expanded: true,
+          children: [],
+          parent: 'ROOT'
+        }
+      }
+    )
   }
 
   return (

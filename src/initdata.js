@@ -1,18 +1,30 @@
 const initdata = {
-  'name': 'test',
-  'color': '#FF0000',
-  'onClick': "alert('this was clicked')",
-  'onHover': "alert('hovered!')",
-  'children': [
-    {'name': '1'},
+  name: 'test',
+  color: '#FF0000',
+  visible: true,
+  children: [
     {
-      'name': '2',
-      'children': [
-        {'name': '2.1'},
-        {'name': '2.2'}
+      name: '1',
+      visible: true,
+    },
+    {
+      name: '2',
+      visible: true,
+      children: [
+        {
+          name: '2.1',
+          visible: true,
+        },
+        {
+          name: '2.2',
+          visible: true,
+        }
         ]
     },
-    {'name': '3'}
+    {
+      name: '3',
+      visible: true,
+    }
   ]
 }
 

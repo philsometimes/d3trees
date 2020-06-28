@@ -1,6 +1,6 @@
 import * as d3 from 'd3'
 
-const yScale = n => n/1.5
+const yScale = n => n/3
 const xScale = d3.scaleLinear().domain([0, 1]).range([0, 20])
 
 
@@ -46,11 +46,12 @@ export const collapseChildNodes = (indexes, refs, children, linkIndexes, links, 
 export const expandChildNodes = (indexes, refs, children, linkIndexes, links, linkRefs) => {
   const childRefs = indexes.map(i => refs[i])
   childRefs.forEach( (ref, i) => {
+    const fill = children[i].data.color ? children[i].data.color : children[i].children ? '#0F0' : '#00F'
     d3.select(ref)
       .select('circle')
       .transition()
         .duration(2000)
-        .attr('fill', '#00F')
+        .attr('fill', fill)
         .attr('opacity', '100');
     d3.select(ref)
       .select('text')
@@ -65,6 +66,8 @@ export const expandChildNodes = (indexes, refs, children, linkIndexes, links, li
 }
 
 const nodeExit = (node, data) => {
+  console.log(node)
+  console.log(data)
   d3.select(node)
     .lower()
     .transition()
@@ -90,13 +93,13 @@ const linkExit = (link) => {
 
 const linkEnter = (link) => {
   d3.select(link[0])
+    .raise()
     .transition()
       .duration(2000)
         .attr("d", linkGen(link[1], 'parent'))
 }
 
 export const linkGen = (link, to) => {
-  console.log('here')
   const target = {
     x: to === 'parent' ? link.target.x : link.source.x,
     y: to === 'parent' ? link.target.y : link.source.y
