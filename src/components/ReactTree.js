@@ -5,7 +5,9 @@ import {
   d3Drag,
   collapseChildNodes,
   expandChildNodes,
-  linkGen
+  linkGen,
+  showDropzone,
+  hideDropzone
 } from '../d3/d3Utils'
 import formatForD3Tree from '../d3/formatForD3Tree'
 
@@ -206,6 +208,13 @@ export default function ReactTree({ data, setData }) {
                       r="20"
                       opacity={opacity}
                       >
+                    </circle>
+                    <circle
+                      className="dropzone"
+                      onMouseEnter={(e)=>showDropzone(e)}
+                      onMouseLeave={(e)=>hideDropzone(e)}
+                      opacity="0"
+                      r="30">
                     </circle>
                     <text
                       dx="0.31em"
