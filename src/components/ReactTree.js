@@ -1,33 +1,15 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import * as d3 from 'd3'
 import styled from '@emotion/styled'
-import { jsx, css, keyframes } from '@emotion/core'
 import {
   getTree,
   d3Drag,
   collapseChildNodes,
   expandChildNodes,
-  linkGen,
-  showDropzone,
-  hideDropzone
+  linkGen
 } from '../d3/d3Utils'
 import formatForD3Tree from '../d3/formatForD3Tree'
-
-const pulse = keyframes`
-  from, to {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(0.8);
-  }
-`
-
-const AnimatedDropzone = styled.circle`
-  fill: red;
-  mix-blend-mode: difference;
-  animation: ${pulse} 1s ease-in-out infinite;
-`
-
+import DropZone from './DropZone'
 
 export default function ReactTree({ data, setData }) {
   const [ready, setReady] = useState(false)
@@ -226,13 +208,7 @@ export default function ReactTree({ data, setData }) {
                       opacity={opacity}
                       >
                     </circle>
-                    <AnimatedDropzone
-                      className="dropzone"
-                      onMouseEnter={(e)=>showDropzone(e)}
-                      onMouseLeave={(e)=>hideDropzone(e)}
-                      opacity="0"
-                      r="30">
-                    </AnimatedDropzone>
+                    <DropZone></DropZone>
                     <text
                       dx="0.31em"
                       y={child.children ? 0 : 4}
