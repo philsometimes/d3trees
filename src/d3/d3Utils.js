@@ -27,8 +27,7 @@ export const showDropzone = (e) => {
     .transition()
       .duration(500)
       .ease(d3.easePolyOut)
-      .attr('fill','pink')
-      .attr('opacity', '0.8')
+      .attr('opacity', '0.5')
       .attr('r', '40')
 }
 
