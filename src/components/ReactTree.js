@@ -1,15 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import * as d3 from 'd3'
-import styled from '@emotion/styled'
 import {
   getTree,
   d3Drag,
   collapseChildNodes,
   expandChildNodes,
-  linkGen
 } from '../d3/d3Utils'
 import formatForD3Tree from '../d3/formatForD3Tree'
-import DropZone from './DropZone'
+import Links from './Links'
+import Nodes from './Nodes'
 
 export default function ReactTree({ data, setData }) {
   const [ready, setReady] = useState(false)
@@ -20,8 +19,6 @@ export default function ReactTree({ data, setData }) {
   const linkRefs = useRef([])
   const x0 = useRef()
   const width = 1000
-  const yScale = n => n/3
-  const xScale = d3.scaleLinear().domain([0, 1]).range([0, 20])
   const d3Update = useRef(false)
 
   // QUESTION: does this really all need to be async??
@@ -153,7 +150,6 @@ export default function ReactTree({ data, setData }) {
     { ready &&
       <svg
         viewBox={[-width/2, 0, width, 500]}
-        draggable="true"
         >
         <g
           fontFamily="sans-serif"
@@ -161,68 +157,15 @@ export default function ReactTree({ data, setData }) {
           transform={`translate(${tree.current.dx / 3},${tree.current.dx - x0.current})`}
           id="root"
           >
-          <g
-            fill="none"
-            stroke="black"
-            strokeOpacity="0.4"
-            strokeWidth="1.5"
-            >
-            {
-              links.current.map((link, i) => {
-                const to = link.source.data.expanded ? 'parent' : 'self'
-                const linkPath = linkGen(link, to)()
-                return <path
-                          id={i}
-                          key={i}
-                          d={linkPath}
-                          ref={el => linkRefs.current.push(el)}
-                          >
-                        </path>
-              })
-            }
-          </g>
-          <g
-            strokeLinejoin="round"
-            strokeWidth="3"
-            >
-            {
-              children.current.map((child, i) => {
-                const x = (!child.parent || child.parent.data.expanded) ? child.x : child.parent.x
-                const y = (!child.parent || child.parent.data.expanded) ? child.y : child.parent.y
-                const opacity = (!child.parent || child.parent.data.expanded) ? '100' : '0'
-                const textOpacity = (!child.parent || child.parent.data.expanded) ? '100' : '0'
-                const fill = (!child.parent || child.parent.data.expanded) ?
-                              child.data.color ? child.data.color :
-                              child.children ? '#0F0' : '#00F' : 'white'
-                return (
-                  <g
-                    id={i}
-                    key={i}
-                    transform={`translate(${xScale(x)},${yScale(y)})`}
-                    ref={el => {refs.current.push(el)}}
-                    onClick={() => collapseExpandChildren(child, i)}
-                    >
-                    <circle
-                      fill={fill}
-                      r="20"
-                      opacity={opacity}
-                      >
-                    </circle>
-                    <DropZone></DropZone>
-                    <text
-                      dx="0.31em"
-                      y={child.children ? 0 : 4}
-                      fill={child.children ? "white" : "black"}
-                      textAnchor={child.children ? "end" : "start"}
-                      fillOpacity={textOpacity}
-                      >
-                      {child.data.name}
-                    </text>
-                  </g>
-                )
-              })
-            }
-          </g>
+          <Links
+            links={links.current}
+            linkRefs={linkRefs.current}
+            />
+          <Nodes
+            children={children.current}
+            refs={refs.current}
+            collapseExpandChildren={collapseExpandChildren}
+            />
         </g>
       </svg>
     }

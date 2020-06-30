@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import * as d3 from 'd3'
 import styled from '@emotion/styled'
 import { keyframes } from '@emotion/core'
@@ -16,27 +16,34 @@ const PulsingCircle = styled.circle`
   fill: red;
   mix-blend-mode: difference;
   animation: ${pulse} 1s ease-in-out infinite;
+  display: hidden;
 `
 
-const showDropzone = (e) => {
-  d3.select(e.target)
-    .transition()
-      .duration(500)
-      .ease(d3.easePolyOut)
-      .attr('opacity', '0.5')
-      .attr('r', '40')
-}
-
-const hideDropzone = (e) => {
-  d3.select(e.target)
-    .transition()
-      .duration(500)
-      .ease(d3.easePolyOut)
-      .attr('opacity', '0')
-      .attr('r', '30')
-}
 
 export default function DropZone() {
+  const add = useRef()
+  const showDropzone = (e) => {
+    d3.select(add.current)
+      .attr('display', 'visible')
+    d3.select(e.target)
+      .attr('display', 'visible')
+      .transition()
+        .duration(500)
+        .ease(d3.easePolyOut)
+        .attr('opacity', '0.5')
+        .attr('r', '40')
+  }
+  const hideDropzone = (e) => {
+    d3.select(add.current)
+      .attr('display', 'none')
+    d3.select(e.target)
+      .transition()
+        .duration(500)
+        .ease(d3.easePolyOut)
+        .attr('opacity', '0')
+        .attr('r', '30')
+  }
+
   const handleDragEnter = e => {
     e.preventDefault();
     e.stopPropagation();
@@ -54,17 +61,34 @@ export default function DropZone() {
     e.stopPropagation();
   };
   return (
+    <g
+      onMouseEnter={(e)=>showDropzone(e)}
+      onMouseLeave={(e)=>hideDropzone(e)}
+      onDrop={e => handleDrop(e)}
+      onDragOver={e => handleDragOver(e)}
+      onDragEnter={e => handleDragEnter(e)}
+      onDragLeave={e => handleDragLeave(e)}
+      >
       <PulsingCircle
         className="dropzone"
         opacity="0"
         r="30"
-        onMouseEnter={(e)=>showDropzone(e)}
-        onMouseLeave={(e)=>hideDropzone(e)}
-        onDrop={e => handleDrop(e)}
-        onDragOver={e => handleDragOver(e)}
-        onDragEnter={e => handleDragEnter(e)}
-        onDragLeave={e => handleDragLeave(e)}
         >
       </PulsingCircle>
+      <g
+        transform={`translate(15, -15)`}
+        ref={el => add.current = el}
+        display='none'
+        >
+        <circle
+          r="6"
+          ></circle>
+        <text
+          fill="white"
+          x="-3"
+          y="2"
+          >+</text>
+      </g>
+    </g>
     )
 }
