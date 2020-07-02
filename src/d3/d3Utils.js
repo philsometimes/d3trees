@@ -16,8 +16,8 @@ export const d3Drag = () => {
     d3.selectAll(this)
       .raise()
       .attr('transform', `translate(${d3.event.x},${d3.event.y})`);
-      // .attr("x", d3.event.x)
-      // .attr("y", d3.event.y);
+      // .attr("cx", d3.event.x)
+      // .attr("cy", d3.event.y);
 // TODO: set something data as d3.event.x/y to let react know the new positions
   })
 }
@@ -44,7 +44,7 @@ export const collapseChildNodes = (indexes, refs, children, linkIndexes, links, 
   const childRefs = indexes.map(i => refs[i])
   childRefs.forEach( (ref, i) => {
     d3.select(ref)
-      .select('circle')
+      .select('#node')
       .transition()
         .duration(2000)
         .attr('fill', 'white')
@@ -66,7 +66,7 @@ export const expandChildNodes = (indexes, refs, children, linkIndexes, links, li
   childRefs.forEach( (ref, i) => {
     const fill = children[i].data.color ? children[i].data.color : children[i].children ? '#0F0' : '#00F'
     d3.select(ref)
-      .select('circle')
+      .select('#node')
       .transition()
         .duration(2000)
         .attr('fill', fill)
