@@ -9,6 +9,7 @@ import {
 import formatForD3Tree from '../d3/formatForD3Tree'
 import Links from './Links'
 import Nodes from './Nodes'
+import ZoomZone from './ZoomZone'
 
 export default function ReactTree({ data, setData }) {
   const [ready, setReady] = useState(false)
@@ -20,6 +21,33 @@ export default function ReactTree({ data, setData }) {
   const x0 = useRef()
   const width = 1000
   const d3Update = useRef(false)
+
+  const zoomed = () => {
+    console.log("zoooming");
+    // target.attr("transform", d3.event.transform)
+    // console.log(d3.event.transform)
+  }
+
+  const handleZoom = useCallback(()=>{
+    console.log(this);
+    d3.select(this).call(d3.zoom()
+        .on("zoom", zoomed));
+    },[])
+  useEffect(()=> {
+    console.log("effect running");
+    handleZoom(d3.select(zoomRef.current))
+  },[ready, handleZoom])
+
+  const zoomRef = useRef()
+  const setZoomRef = useCallback((el) => {
+    if (zoomRef.current){
+      return
+    }
+    zoomRef.current=el
+  },[])
+
+
+
 
   // QUESTION: does this really all need to be async??
   useEffect(() => {
@@ -158,12 +186,15 @@ export default function ReactTree({ data, setData }) {
     const updateParent = {...data[node.data.uid], children: [...data[node.data.uid].children, nextUid]}
     setData({...data, [nextUid]: newNode, [node.data.uid]: updateParent})
   }
+  console.log(zoomRef.current);
 
   return (
     <>
     { ready &&
       <svg
         viewBox={[-width/2, 0, width, 500]}
+        ref={zoomRef.current}
+        pointerEvents = 'all'
         >
         <g
           fontFamily="sans-serif"
@@ -182,6 +213,7 @@ export default function ReactTree({ data, setData }) {
             addChild={addChild}
             />
         </g>
+
       </svg>
     }
     {!ready && <div>Loading...</div>}

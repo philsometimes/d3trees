@@ -11,6 +11,19 @@ export const getTree = (data, width) => {
   return d3.tree().nodeSize([root.dx, root.dy])(root)
 }
 
+export const d3Zoom = (target, width, height) => {
+  console.log("this is working");
+  console.log(target);
+  const zoomed = () => {
+  target.attr("transform", d3.event.transform)
+  console.log(d3.event.transform);;
+  }
+  d3.select(target).call(d3.zoom()
+      .extent([[0, 0], [width, height]])
+      .scaleExtent([1, 8])
+      .on("zoom", zoomed));
+}
+
 export const d3Drag = () => {
   d3.drag().on('drag', function() {
     d3.selectAll(this)
