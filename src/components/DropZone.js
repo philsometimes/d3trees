@@ -75,20 +75,6 @@ export default function DropZone() {
         r="30"
         >
       </PulsingCircle>
-      <g
-        transform={`translate(15, -15)`}
-        ref={el => add.current = el}
-        display='none'
-        >
-        <circle
-          r="6"
-          ></circle>
-        <text
-          fill="white"
-          x="-3"
-          y="2"
-          >+</text>
-      </g>
     </g>
     )
 }

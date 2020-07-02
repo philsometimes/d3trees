@@ -94,7 +94,7 @@ export default function ReactTree({ data, setData }) {
     }).filter(i => i !== null)
   }
 
-  const collapseExpandChildren = (node, i) => {
+  const collapseExpandChildren = node => {
     if (!node.children) {
       return
     }
@@ -145,6 +145,20 @@ export default function ReactTree({ data, setData }) {
     }
   }
 
+  const addChild = node => {
+    const nextUid = Object.keys(data).length
+    const newNode = {
+      uid: nextUid.toString(),
+      name: `${node.data.name}.${node.data.children.length+1}`,
+      color: '',
+      expanded: true,
+      children: [],
+      parent: node.data.uid
+    }
+    const updateParent = {...data[node.data.uid], children: [...data[node.data.uid].children, nextUid]}
+    setData({...data, [nextUid]: newNode, [node.data.uid]: updateParent})
+  }
+
   return (
     <>
     { ready &&
@@ -165,6 +179,7 @@ export default function ReactTree({ data, setData }) {
             children={children.current}
             refs={refs.current}
             collapseExpandChildren={collapseExpandChildren}
+            addChild={addChild}
             />
         </g>
       </svg>
