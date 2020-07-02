@@ -22,6 +22,7 @@ export default function Node(props) {
         >
       </circle>
       <circle
+        id="node"
         fill={fill}
         r="20"
         opacity={opacity}
