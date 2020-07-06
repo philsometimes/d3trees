@@ -32,6 +32,7 @@ export default function ReactTree({ data, setData }) {
       children.current = d3Children
       const d3Links = await d3Tree.links()
       console.log(d3Links)
+      console.log(data)
       links.current = d3Links
       //fix this so we use a max and not this weird infinity
       let x00 = Infinity
@@ -159,6 +160,32 @@ export default function ReactTree({ data, setData }) {
     setData({...data, [nextUid]: newNode, [node.data.uid]: updateParent})
   }
 
+  const removeNode = node => {
+    if (node.data.uid === 'ROOT') {
+      alert("sorry you can't delete the root node")
+      return
+    }
+    if (data[node.data.uid].children.length > 0) {
+      const allChildren = findNestedChildren(node.data.uid)
+      const update = Object.fromEntries(allChildren.map(uid => [uid, {}]))
+      console.log(update)
+      console.log({...data, [node.data.uid]: {}, ...update})
+      setData({...data, [node.data.uid]: {}, ...update})
+    }
+    setData({...data, [node.data.uid]: {}})
+  }
+
+  const findNestedChildren = uid => {
+    const children = data[uid].children
+    const nestedChildren = children.map(child => {
+        if (data[child].children && data[child].children.length > 0) {
+          return [child, findNestedChildren(child)]
+        }
+        return child
+      }).flat(100)
+    return nestedChildren
+  }
+
   return (
     <>
     { ready &&
@@ -168,7 +195,7 @@ export default function ReactTree({ data, setData }) {
         <g
           fontFamily="sans-serif"
           fontSize="10"
-          transform={`translate(${tree.current.dx / 3},${tree.current.dx - x0.current})`}
+          transform={`translate(${tree.current.dx / 3},50)`}
           id="root"
           >
           <Links
@@ -180,6 +207,7 @@ export default function ReactTree({ data, setData }) {
             refs={refs.current}
             collapseExpandChildren={collapseExpandChildren}
             addChild={addChild}
+            removeNode={removeNode}
             />
         </g>
       </svg>

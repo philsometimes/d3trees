@@ -2,7 +2,7 @@ import React from 'react'
 import Node from './Node'
 
 
-export default function Nodes({ children, refs, collapseExpandChildren, addChild }) {
+export default function Nodes({ children, refs, collapseExpandChildren, addChild, removeNode }) {
   return (
     <g
       strokeLinejoin="round"
@@ -16,12 +16,13 @@ export default function Nodes({ children, refs, collapseExpandChildren, addChild
           const textOpacity = (!child.parent || child.parent.data.expanded) ? '100' : '0'
           const fill = (!child.parent || child.parent.data.expanded) ?
                         child.data.color ? child.data.color :
-                        child.children ? '#0F0' : '#00F' : 'white'
+                        child.children ? '#0FF' : '#00F' : 'white'
           return (
             <Node
               key={child.data.uid}
               child={child}
               addChild={addChild}
+              removeNode={removeNode}
               x={x}
               y={y}
               opacity={opacity}

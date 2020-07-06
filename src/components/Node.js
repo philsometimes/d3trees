@@ -5,7 +5,18 @@ import DropZone from './DropZone'
 
 
 export default function Node(props) {
-  const {child, x, y, opacity, textOpacity, fill, refs, collapseExpandChildren, addChild} = props
+  const {
+    child,
+    x,
+    y,
+    opacity,
+    textOpacity,
+    fill,
+    refs,
+    collapseExpandChildren,
+    addChild,
+    removeNode
+  } = props
   const [showUI, setShowUI] = useState(false)
   const xScale = d3.scaleLinear().domain([0, 1]).range([0, 20])
   return (
@@ -30,7 +41,7 @@ export default function Node(props) {
         >
       </circle>
       {false && <DropZone />}
-      {showUI && <UIButtons node={child} addChild={addChild} />}
+      {showUI && <UIButtons node={child} addChild={addChild} remove={removeNode} />}
       <text
         dx="0.31em"
         y={child.children ? 0 : 4}
