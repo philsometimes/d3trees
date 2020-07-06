@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import * as d3 from 'd3'
 import UIButtons from './UiButtons'
 import DropZone from './DropZone'
+import { xScale } from '../d3/d3Utils'
 
 
 export default function Node(props) {
@@ -18,7 +18,6 @@ export default function Node(props) {
     removeNode
   } = props
   const [showUI, setShowUI] = useState(false)
-  const xScale = d3.scaleLinear().domain([0, 1]).range([0, 20])
   return (
     <g
       transform={`translate(${xScale(x)},${y/3})`}

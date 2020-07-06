@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import * as d3 from 'd3'
+import { getTree } from '../d3/d3Utils'
 import {
-  getTree,
-  d3Drag,
   collapseChildNodes,
-  expandChildNodes,
-} from '../d3/d3Utils'
+  expandChildNodes
+} from '../d3/collapse'
+import { d3Drag } from '../d3/drag'
 import formatForD3Tree from '../d3/formatForD3Tree'
 import Links from './Links'
 import Nodes from './Nodes'
