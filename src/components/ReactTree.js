@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import * as d3 from 'd3'
+import { getTree } from '../d3/d3Utils'
 import {
-  getTree,
-  d3Drag,
   collapseChildNodes,
-  expandChildNodes,
-} from '../d3/d3Utils'
+  expandChildNodes
+} from '../d3/collapse'
+import { d3Drag } from '../d3/drag'
 import formatForD3Tree from '../d3/formatForD3Tree'
 import Links from './Links'
 import Nodes from './Nodes'
@@ -60,6 +60,7 @@ export default function ReactTree({ data, setData }) {
       children.current = d3Children
       const d3Links = await d3Tree.links()
       console.log(d3Links)
+      console.log(data)
       links.current = d3Links
       //fix this so we use a max and not this weird infinity
       let x00 = Infinity
@@ -188,6 +189,32 @@ export default function ReactTree({ data, setData }) {
   }
   console.log(zoomRef.current);
 
+  const removeNode = node => {
+    if (node.data.uid === 'ROOT') {
+      alert("sorry you can't delete the root node")
+      return
+    }
+    if (data[node.data.uid].children.length > 0) {
+      const allChildren = findNestedChildren(node.data.uid)
+      const update = Object.fromEntries(allChildren.map(uid => [uid, {}]))
+      console.log(update)
+      console.log({...data, [node.data.uid]: {}, ...update})
+      setData({...data, [node.data.uid]: {}, ...update})
+    }
+    setData({...data, [node.data.uid]: {}})
+  }
+
+  const findNestedChildren = uid => {
+    const children = data[uid].children
+    const nestedChildren = children.map(child => {
+        if (data[child].children && data[child].children.length > 0) {
+          return [child, findNestedChildren(child)]
+        }
+        return child
+      }).flat(100)
+    return nestedChildren
+  }
+
   return (
     <>
     { ready &&
@@ -199,7 +226,7 @@ export default function ReactTree({ data, setData }) {
         <g
           fontFamily="sans-serif"
           fontSize="10"
-          transform={`translate(${tree.current.dx / 3},${tree.current.dx - x0.current})`}
+          transform={`translate(${tree.current.dx / 3},50)`}
           id="root"
           >
           <Links
@@ -211,6 +238,7 @@ export default function ReactTree({ data, setData }) {
             refs={refs.current}
             collapseExpandChildren={collapseExpandChildren}
             addChild={addChild}
+            removeNode={removeNode}
             />
         </g>
 

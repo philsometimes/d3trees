@@ -2,7 +2,7 @@ export const flat = {
   ROOT: {
     uid: 'ROOT',
     name: 'root',
-    color: '#FF0000',
+    color: '#000',
     expanded: true,
     children: [1, 2, 3],
     parent: null
