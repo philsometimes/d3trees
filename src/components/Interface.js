@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {useSpring, animated} from 'react-spring'
 import ReactTree from './ReactTree'
 import { flat } from '../flatData'
 
 export default function Interface() {
-
-
   const [data, setData] = useState(flat)
   const handleClick = () => {
     const nextUid = Object.keys(data).length
@@ -22,12 +20,10 @@ export default function Interface() {
       }
     )
   }
-
-
   const width = 1000
   const height = 500
   const panStep = 20
-  const [lastView, setLastView] = useState([-width/2,0,width,height])
+  const lastView = useRef([-width/2,0,width,height])
   const [xOffset, setXOffset] = useState(0)
   const [yOffset, setYOffset] = useState(0)
   const [zoomFactor, setZoomFactor] = useState(1)
@@ -42,28 +38,28 @@ export default function Interface() {
     setZoomHeight(height/zoomFactor)
   },[zoomFactor])
   const handleZoomReset = () => {
-    setLastView(-zoomWidth/2+xOffset,0+yOffset,zoomWidth,zoomHeight)
+    lastView.current = [-zoomWidth/2+xOffset,0+yOffset,zoomWidth,zoomHeight]
     setZoomFactor(1)
   }
   const handlePanReset = () => {
-    setLastView([-zoomWidth/2+xOffset,0+yOffset,zoomWidth,zoomHeight])
+    lastView.current = [-zoomWidth/2+xOffset,0+yOffset,zoomWidth,zoomHeight]
     setXOffset(0)
     setYOffset(0)
   }
   const handlePosX = () => {
-    setLastView([-zoomWidth/2+xOffset,0+yOffset,zoomWidth,zoomHeight])
+    lastView.current = [-zoomWidth/2+xOffset,0+yOffset,zoomWidth,zoomHeight]
     setXOffset(xOffset+panStep)
   }
   const handleNegX = () => {
-    setLastView([-zoomWidth/2+xOffset,0+yOffset,zoomWidth,zoomHeight])
+    lastView.current = [-zoomWidth/2+xOffset,0+yOffset,zoomWidth,zoomHeight]
     setXOffset(xOffset-panStep)
   }
   const handlePosY = () => {
-    setLastView([-zoomWidth/2+xOffset,0+yOffset,zoomWidth,zoomHeight])
+    lastView.current = [-zoomWidth/2+xOffset,0+yOffset,zoomWidth,zoomHeight]
     setYOffset(yOffset+panStep)
   }
   const handleNegY = () => {
-    setLastView([-zoomWidth/2+xOffset,0+yOffset,zoomWidth,zoomHeight])
+    lastView.current = [-zoomWidth/2+xOffset,0+yOffset,zoomWidth,zoomHeight]
     setYOffset(yOffset-panStep)
   }
   const AnimatedReactTree = animated(ReactTree)
@@ -72,7 +68,7 @@ export default function Interface() {
               0+yOffset,
               zoomWidth,
               zoomHeight],
-    from: {value: lastView}
+    from: {value: lastView.current}
   })
 
 
